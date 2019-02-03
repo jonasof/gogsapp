@@ -6,20 +6,14 @@
       dark
       slider-color="yellow"
     >
-      <v-tab
-        key="info"
-      >
+      <v-tab key="info">
         Info
       </v-tab>
-      <v-tab
-        key="dois"
-      >
+      <v-tab key="dois">
         Code
       </v-tab>
 
-      <v-tab-item
-        key="info"
-      >
+      <v-tab-item key="info">
         <div v-if='item'>
           <h3>Name: {{ item.full_name }}</h3>
           <p>Private: {{ item.private }}</p>
@@ -31,11 +25,8 @@
         </div>
       </v-tab-item>
 
-      <v-tab-item
-        key="dois"
-      >
-        <div>
-          WIP
+      <v-tab-item key="file">
+        <div v-if='item'>
           <iframe :src='item.html_url'></iframe>
         </div>
       </v-tab-item>
@@ -50,7 +41,7 @@ export default  {
   props: ['user', 'repo'],
   data () {
     return {
-      item: null, 
+      item: null,
       active: null,
       url: localStorage.getItem('url')
     }
@@ -60,6 +51,7 @@ export default  {
   },
   methods: {
     async fetchInfo () {
+      this.item = null
       this.item = await gogsApi.getApi().getRepo({
         full_name: `${this.user}/${this.repo}`
       }, gogsApi.getUser())
@@ -67,6 +59,21 @@ export default  {
     back () {
       this.$router.push('/repositories');
     }
+  },
+  watch: {
+    user () {
+      this.fetchInfo();
+    },
+    repo () {
+      this.fetchInfo();
+    }
   }
 }
 </script>
+
+<style scoped='true'>
+  iframe {
+    width:  100%;
+    height: 500px;
+  }
+</style>

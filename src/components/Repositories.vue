@@ -1,5 +1,18 @@
 <template>
   <div>
+    <v-btn
+       color="blue"
+       dark
+       small
+       fixed
+       bottom
+       right
+       fab
+       @click="downloadRepos()"
+       v-show="!loading"
+     >
+       <v-icon>refresh</v-icon>
+     </v-btn>
      <v-list two-line>
       <template v-for="(item) in repos">
         <v-list-tile
@@ -13,19 +26,6 @@
         </v-list-tile>
       </template>
     </v-list>
-    <!--<FlatList
-      data={this.state.repos}
-      keyExtractor={(item, index) => index.toString()}
-      renderItem={
-        ({item}) => <ListItem
-          divider
-          centerElement={item.full_name}
-          onPress={() => this.props.navigation.navigate('repository', {
-            repo: {item},
-          })}
-      />
-    }
-    />-->
   </div>
 </template>
 
@@ -36,7 +36,8 @@ import GogsClient from 'gogs-client';
 export default {
   data () {
     return {
-      repos: []
+      repos: [],
+      loading: true,
     }
   },
   mounted() {
@@ -44,11 +45,15 @@ export default {
   },
   methods: {
     async downloadRepos () {
+      this.loading = true;
+
       const url = localStorage.getItem('url');
       const token = localStorage.getItem('token');
 
       var api = new GogsClient(url);
       this.repos = await api.listRepos({token, auth_method: 'query_string'})
+
+      this.loading = false;
     },
     showItem (item) {
       this.$router.push(`repository/${item.full_name}`)

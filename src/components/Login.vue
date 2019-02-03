@@ -4,17 +4,24 @@
 
     <span>Type Your Server URL:</span>
     <v-text-field v-model="url"></v-text-field>
-    
-    <span>Login:</span>
+
+    <!-- <span>Login:</span>
     <v-text-field v-model="login"></v-text-field>
 
     <span>Password:</span>
-    <v-text-field v-model="password" type="password"></v-text-field>
+    <v-text-field v-model="password" type="password"></v-text-field> -->
 
-    <span>Or Token:</span>
+    <span>App Token:</span>
     <v-text-field v-model="token"></v-text-field>
 
     <v-btn large color="primary" v-on:click='doLogin()'>Login</v-btn>
+
+    <v-alert
+      :value="error"
+      color="error"
+    >
+      {{ error }}
+    </v-alert>
   </div>
 </template>
 
@@ -26,34 +33,36 @@
     data() {
       return {
         url: 'http://localhost:8080/api/v1/',
-        login: '',
+      /*  login: '',
         password: '',
+        token_name: 'Gogs Android App', */
         token: '',
-        token_name: 'Gogs Android App'
+        error: ''
       };
-    },
-    mounted() {
-      this.checkLogged()
     },
     methods: {
       async doLogin () {
-        if (!this.token) {
+        /*if (!this.token) {
           var api = new GogsClient(this.url);
           var tokens = await api.listTokens({
             username: this.login,
             password: this.password
           })
-        }
+        }*/
 
-        localStorage.setItem('url', this.url);
-        localStorage.setItem('token', this.token);
-        
-        this.checkLogged()
-      },
-      checkLogged ()
-      {
-        if (this.gogsApi().checkLogged()) {
+        this.error = ""
+
+        try {
+          await gogsApi.loginWithUrlAndToken(this.url, this.token);
           this.$router.push('Repositories')
+        } catch (e) {
+          if (e === undefined) {
+            this.error = "Unknown Auth Error";
+          } else if (e.status && e.data) {
+            this.error = "Auth Error: " +  e.status + " " +  e.data;
+          } else {
+            this.error = e
+          }
         }
       }
     }
